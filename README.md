@@ -50,10 +50,15 @@ APIs
 Steps to get Started 
 ========================================================================================
 1) Download this repo.
+
 2) cd into this folder on your system terminal.
+
 3) run "npm install"
+
 4) run "node server.js"
-5) Server starts on port 3000 by defulat. To use any of above api, append it to "http://localhost:3000".  e.g. "http://localhost:3000/getAllItems". 
+
+5) Server starts on port 3000 by defulat. To use any of above api, append it to "http://localhost:3000".  e.g. "http://localhost:3000/getAllItems".
+ 
 6) Use any REST client to verify implementation. Please pass parameters as mentioned above.
 
 
