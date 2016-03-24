@@ -24,6 +24,8 @@ APIs
 	
 	{"sortBy":"date", "sortOrder" : "D"}
 	
+	Request Type : POST
+	
 
 2) /getItemById :
 
@@ -32,8 +34,11 @@ APIs
 	{
 		"Content-type"" : "Application/json"
 	}
+	
 	Request Body:
 	{"type":"item", "id" : "54093de4f9ffc9c926000041"}
+	
+	Request Type : POST
 
 3) /getItemByDistance
 	
@@ -42,9 +47,11 @@ APIs
 	{
 		"Content-type"" : "Application/json"
 	}
+	
 	Request Body:
 	{"lat":"37.3742262804012526", "long":"-121.9235357883973023", "radius":"1"}
 	
+	Request Type : POST
 	
 	
 Steps to get Started 
