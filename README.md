@@ -15,7 +15,7 @@ APIs
 ========================================================================================
 1) /getAllItems:
 
-	This API adds new host.
+	This API returns all the items in the list in asked sorting order.
 	Request Header : 
 	{
 		"Content-type"" : "Application/json"
@@ -29,7 +29,7 @@ APIs
 
 2) /getItemById :
 
-	This API adds new link.
+	This API returns items as per specified id.
 	Request Header : 
 	{
 		"Content-type"" : "Application/json"
