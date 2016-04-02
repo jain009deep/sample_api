@@ -17,8 +17,8 @@ APIs
 
 	This API returns all the items in the list in asked sorting order.
 	Values:
-			type : "user", //valid values : item, user
-			id : "53f6c9c96d1944af0b00000b" // valid respective id value 
+			sortBy : "date", // valid values : date, price 
+			sortOrder : "D" // valid values : A, D  
 	
 	Request Type : GET
 	
