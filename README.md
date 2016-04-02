@@ -26,7 +26,7 @@ APIs
 	curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
 	
 
-2) items/:id/:type
+2) /items/:id/:type
 
 	This API returns items as per specified id.
 	Values:
