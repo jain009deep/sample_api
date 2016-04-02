@@ -89,6 +89,10 @@ app.use(function (req, res, next) {
 app.use('/', getItemsRouter);
 router.defineRoutes(getItemsRouter);
 
+// added for testing
+
+module.exports = app;
+
 
 /**
  * Listen on provided port, on all network interfaces.

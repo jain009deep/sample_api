@@ -13,45 +13,43 @@ Here are details of APIs.
 
 APIs
 ========================================================================================
-1) /getAllItems:
+1) /allItems/:sortBy/:sortOrder
 
 	This API returns all the items in the list in asked sorting order.
-	Request Header : 
-	{
-		"Content-type"" : "Application/json"
-	}
-	Request Body:
+	Values:
+			type : "user", //valid values : item, user
+			id : "53f6c9c96d1944af0b00000b" // valid respective id value 
 	
-	{"sortBy":"date", "sortOrder" : "D"}
+	Request Type : GET
 	
-	Request Type : POST
+	Using curl:		
+	curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
 	
 
-2) /getItemById :
+2) items/:id/:type
 
 	This API returns items as per specified id.
-	Request Header : 
-	{
-		"Content-type"" : "Application/json"
-	}
-	
-	Request Body:
-	{"type":"item", "id" : "54093de4f9ffc9c926000041"}
-	
-	Request Type : POST
+	Values:
+			type : "user", //valid values : item, user
+			id : "53f6c9c96d1944af0b00000b" // valid respective id value 
 
-3) /getItemByDistance
+	Request Type : GET
+	
+	Using curl:	
+	curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
+
+3) /itemByDistance/:lat/:long/:radius
 	
 	This API returns all the items located within certain range of given lattitude and longitude.
-	Request Header : 
-	{
-		"Content-type"" : "Application/json"
-	}
+	Values:
+			Lattitude : 36.1632776369483580, // Valid Lattitude
+			Longitude : -115.1409809579232757, // Valid Longitude
+			Radius : 20 // Distance in Miles
+			
+	Request Type : GET
 	
-	Request Body:
-	{"lat":"37.3742262804012526", "long":"-121.9235357883973023", "radius":"1"}
-	
-	Request Type : POST
+	Using curl:
+	curl http://localhost:3000/itemByDistance/36.1632776369483580/-115.1409809579232757/20
 	
 	
 Steps to get Started 
@@ -62,11 +60,13 @@ Steps to get Started
 
 3) run "npm install"
 
-4) run "node server.js"
+4) run "node server.js" or "npm start"
 
 5) Server starts on port 3000 by defulat. To use any of above api, append it to "http://localhost:3000".  e.g. "http://localhost:3000/getAllItems".
  
-6) Use any REST client to verify implementation. Please pass parameters as mentioned above.
+6) Use any REST client (see curl example in service description) to verify implementation. Please pass parameters as mentioned above.
+
+7) run "npm test" to run test cases
 
 
 
@@ -79,4 +79,6 @@ Other Features
 2) Unified logging 
 
 3) Cron job to remove log file content everyday
+
+4) Unit testing Using Mocha, Chai and Supertest
 

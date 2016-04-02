@@ -89,8 +89,8 @@ function findNearByItems(lat, long, distance, unit){
 }
 
 function getAllItems(req, res){
-	var sortBy = req.body.sortBy || "date", // by default send data sorted by createdate in ascending order
-		sortOrder = req.body.sortOrder || "A",
+	var sortBy = req.params.sortBy || "date", // by default send data sorted by createdate in ascending order
+		sortOrder = req.params.sortOrder || "A",
 		responseObj = {
 			hasError : false
 			},
@@ -99,7 +99,8 @@ function getAllItems(req, res){
 		
 		if(validOrder.indexOf(sortOrder.toUpperCase()) === -1 || validBy.indexOf(sortBy.toLowerCase()) === -1){
 			responseObj.hasError = true;
-			responseObj.errorMsg = "Invalid Input";	
+			responseObj.errorMsg = "Invalid Request";
+			res.status(config.HTTP_CODE.BAD_REQUEST);	
 			res.json(responseObj);
 			return;
 		}
@@ -116,12 +117,13 @@ function getAllItems(req, res){
 		}
 		
 		responseObj.data = sampleData;
+		res.status(config.HTTP_CODE.OK);
 		res.json(responseObj);
 }
 
 function getItemById(req, res){
-	var idType =  req.body.type,
-		id =  req.body.id, // Assuming valid id value
+	var idType =  req.params.type,
+		id =  req.params.id, // Assuming valid id value
 		responseObj = {
 			hasError : false
 			},
@@ -129,7 +131,8 @@ function getItemById(req, res){
 		
 		if(!idType || !id || validIdType.indexOf(idType.toLowerCase()) === -1){
 			responseObj.hasError = true;
-			responseObj.errorMsg = "Invalid Id Type";	
+			responseObj.errorMsg = "Invalid Request";
+			res.status(config.HTTP_CODE.BAD_REQUEST);	
 			res.json(responseObj);
 			return;
 		}
@@ -139,35 +142,51 @@ function getItemById(req, res){
 				responseObj.data = searchByItemId(id);
 				break;
 			case validIdType[1]: 
-				responseObj.data = searchByUserId(id);	
+				responseObj.data = searchByUserId(id);
+					
 				break;
 			default:
 				responseObj.data = searchByItemId(id);
+		}
+		
+		if(responseObj.data.length === 0){
+			res.status(config.HTTP_CODE.RESOURCE_NOT_FOUND);	
+		}
+		else{
+			res.status(config.HTTP_CODE.OK);
 		}
 		res.json(responseObj);
 }
 
 function getItemByDistance(req, res){
-	var lat = req.body.lat,
-		long = req.body.long,
-		distance = req.body.radius || 50, // fourth parameter for distance unit can be added
+	var lat = req.params.lat,
+		long = req.params.long,
+		distance = req.params.radius || 50, // fourth parameter for distance unit can be added
 		responseObj = {
 			hasError : false
 			};
 	
 	if(!lat || !long){
 		responseObj.hasError = true;
-		responseObj.errorMsg = "Invalid Id Type";	
+		responseObj.errorMsg = "Invalid Request";
+		res.status(config.HTTP_CODE.BAD_REQUEST);		
 		res.json(responseObj);
 		return;
 	}
 	
 	findNearByItems(lat, long, distance).then(function(nearByItems){
 		responseObj.data = nearByItems;
+		if(responseObj.data.length === 0){
+			res.status(config.HTTP_CODE.RESOURCE_NOT_FOUND);	
+		}
+		else{
+			res.status(config.HTTP_CODE.OK);
+		}
 		res.json(responseObj);
 	}).catch(function(){
 		responseObj.hasError = true;
-		responseObj.errorMsg = "Internal server Error";	
+		responseObj.errorMsg = "Internal server Error";
+		res.status(config.HTTP_CODE.INTERNAL_SERVER_ERROR);
 		res.json(responseObj);	
 	})
 }
