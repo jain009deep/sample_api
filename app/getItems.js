@@ -1,3 +1,5 @@
+'use strict'
+
 var geolib = require("geolib"),
 	sampleData = require("./../model/stub-data.json"),
 	getItems = {},
@@ -6,14 +8,14 @@ var geolib = require("geolib"),
 function sortByDate(order){
 	var sortingOrder = order || "A";
 	if(sortingOrder === "A"){
-		sampleData.sort(function(a, b){
+		sampleData.sort((a, b) => {
 			var date1 = new Date(a.createdAt),
 				date2 = new Date(b.createdAt);
 			return date1 - date2;
 		})
 	}
 	else{
-		sampleData.sort(function(a, b){
+		sampleData.sort((a, b) => {
 			var date1 = new Date(a.createdAt),
 				date2 = new Date(b.createdAt);
 			return date2 - date1;
@@ -24,12 +26,12 @@ function sortByDate(order){
 function sortByPrice(order){
 	var sortingOrder = order || "A";
 	if(sortingOrder === "A"){
-		sampleData.sort(function(a, b){
+		sampleData.sort((a, b) => {
 			return a.price - b.price;
 		})
 	}
 	else{
-		sampleData.sort(function(a, b){
+		sampleData.sort((a, b) => {
 			return b.price - a.price;
 		})
 	}	
@@ -49,10 +51,8 @@ function searchByItemId(id){
 
 function searchByUserId(userId){
 	var itemArr = [];
-	sampleData.forEach(function(item){
-		if(item.userId === userId){
-			itemArr.push(item);
-		}
+	itemArr = sampleData.filter((item) => {
+		return item.userId === userId;		
 	});
 	return itemArr;
 }
@@ -66,7 +66,7 @@ function findNearByItems(lat, long, distance, unit){
 		promise;
 	
 	promise  = new Promise(function(resolve, reject){
-		sampleData.forEach(function(item){
+		nearByItems = sampleData.filter((item) => {
 			itemDistance = geolib.getDistance(
 				{latitude: lat, longitude: long},
 				{latitude: item.loc[0], longitude: item.loc[1]}
@@ -77,9 +77,7 @@ function findNearByItems(lat, long, distance, unit){
 				itemDistance = itemDistance * 0.000621371;
 			}
 
-			if(itemDistance <= nearByDistance){
-				nearByItems.push(item);
-			}		
+			 return itemDistance <= nearByDistance;
 		});
 		
 		resolve(nearByItems);

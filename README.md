@@ -6,7 +6,12 @@ Description
 ========================================================================================
 This application contains some sample APIS which can be used by mobile apps such as close5.
 
-	Prerequisite : Understanding of nodejs
+	Prerequisite : Understanding of nodejs, ES6 High order function
+	
+Note
+========================================================================================
+Please make sure nodejs version that you are using supports ES6 features such as arrow function. 
+You can use node version 4.x or above or babel module for ES6 features.
 
 
 Here are details of APIs.
@@ -81,4 +86,6 @@ Other Features
 3) Cron job to remove log file content everyday
 
 4) Unit testing Using Mocha, Chai and Supertest
+
+5) Use of ES6 high order function
 
