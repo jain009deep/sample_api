@@ -28,7 +28,7 @@ APIs
 	Request Type : GET
 	
 	Using curl:		
-	curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
+	curl http://localhost:3000/allItems/price/A
 	
 
 2) /items/:id/:type
@@ -67,7 +67,7 @@ Steps to get Started
 
 4) run "node server.js" or "npm start"
 
-5) Server starts on port 3000 by defulat. To use any of above api, append it to "http://localhost:3000".  e.g. "http://localhost:3000/getAllItems".
+5) Server starts on port 3000 by defulat. To use any of above api, append it to "http://localhost:3000".  e.g. "http://localhost:3000/allItems/price/A".
  
 6) Use any REST client (see curl example in service description) to verify implementation. Please pass parameters as mentioned above.
 
