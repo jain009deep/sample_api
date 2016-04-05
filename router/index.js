@@ -11,38 +11,41 @@ app = require("../app");
 
 function defineRoutes(router){
 	/*
-		This API return all data in requested sorting order
-		Values:
-			sortBy : "date", // valid values : date, price 
-			sortOrder : "D" // valid values : A, D 
-
+		This API returns item for given id.
+		
 		e.g.
-		curl http://localhost:3000/allItems/price/A		
+		curl http://localhost:3000/items/5421c0eb3f37951d5c000019/
 	*/
-	router.get('/allItems/:sortBy/:sortOrder', app.getItems.getAllItems);
-
-	/*
-		This API returns filtered data as per passed id.
-		Values:
-			type : "user", //valid values : item, user
-			id : "53f6c9c96d1944af0b00000b" // valid respective id value 
-	
-		e.g.
-		curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
-	*/
-	router.get('/items/:id/:type', app.getItems.getItemById);
+	router.get('/items/:id', app.getItems.getItemById);
 	
 	
 	/*
-		This API returns data within passed distance for given lattitude and longitude.
-		Values:
-			Lattitude : 36.1632776369483580, // Valid Lattitude
-			Longitude : -115.1409809579232757, // Valid Longitude
-			Radius : 20 // Distance in Miles
-		e.g.
-		curl http://localhost:3000/itemByDistance/36.1632776369483580/-115.1409809579232757/20
+		This API returns items and response can be filtered using different query parmeters
+        
+        1) curl http://localhost:3000/items/ - 
+        
+            Returns all the items by default dorted by created date in ascending order
+        
+        2) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015 -
+        
+            Returns items having passed userId
+        
+        3) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015&lattitude=36.1650672625387415&longitude=-115.1394261163364092 -
+        
+            Returns all the items belonging to passed userId and within 50 miles range of passed  coordinates
+            
+        4) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015&lattitude=36.1650672625387415&longitude=-115.1394261163364092&sortBy=price&sortOrder=D -
+        
+            Returns all the items belonging to passed userId and within 50 miles range of passed  coordinates and returned data is sorted by price in descending order
+		
 	*/
-	router.get('/itemByDistance/:lat/:long/:radius', app.getItems.getItemByDistance);
+	router.get('/items', app.getItems.master);
+    
+    /*
+        To handle invalid routes
+    */
+    
+    router.all('*', app.getItems.invalidRoute);
 }
 
 router ={};

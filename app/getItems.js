@@ -5,17 +5,17 @@ var geolib = require("geolib"),
 	getItems = {},
 	config = require("./../config");
 	
-function sortByDate(order){
+function sortByDate(dataArr, order){
 	var sortingOrder = order || "A";
 	if(sortingOrder === "A"){
-		sampleData.sort((a, b) => {
+		dataArr.sort((a, b) => {
 			var date1 = new Date(a.createdAt),
 				date2 = new Date(b.createdAt);
 			return date1 - date2;
 		})
 	}
 	else{
-		sampleData.sort((a, b) => {
+		dataArr.sort((a, b) => {
 			var date1 = new Date(a.createdAt),
 				date2 = new Date(b.createdAt);
 			return date2 - date1;
@@ -23,30 +23,30 @@ function sortByDate(order){
 	}
 }
 
-function sortByPrice(order){
+function sortByPrice(dataArr, order){
 	var sortingOrder = order || "A";
 	if(sortingOrder === "A"){
-		sampleData.sort((a, b) => {
+		dataArr.sort((a, b) => {
 			return a.price - b.price;
 		})
 	}
 	else{
-		sampleData.sort((a, b) => {
+		dataArr.sort((a, b) => {
 			return b.price - a.price;
 		})
 	}	
 }
 
 function searchByItemId(id){
-	var i, l, foundItem = [];
+	var i, l, foundItem = null;
 	l = sampleData.length;
 	for(i =0 ; i < l; i++){
 		if(sampleData[i].id === id){
-			foundItem.push(sampleData[i]);
-			break;
+			foundItem = sampleData[i];
+            break;            
 		}
 	}
-	return foundItem;
+    return foundItem;
 }
 
 function searchByUserId(userId){
@@ -58,7 +58,7 @@ function searchByUserId(userId){
 }
 
 
-function findNearByItems(lat, long, distance, unit){
+function findNearByItems(dataArr, lat, long, distance, unit){
 	var nearByDistance = distance ,
 		distanceUnit = unit || "miles",
 		nearByItems = [],
@@ -66,7 +66,7 @@ function findNearByItems(lat, long, distance, unit){
 		promise;
 	
 	promise  = new Promise(function(resolve, reject){
-		nearByItems = sampleData.filter((item) => {
+		nearByItems = dataArr.filter((item) => {
 			itemDistance = geolib.getDistance(
 				{latitude: lat, longitude: long},
 				{latitude: item.loc[0], longitude: item.loc[1]}
@@ -86,111 +86,137 @@ function findNearByItems(lat, long, distance, unit){
 	return promise;
 }
 
-function getAllItems(req, res){
-	var sortBy = req.params.sortBy || "date", // by default send data sorted by createdate in ascending order
-		sortOrder = req.params.sortOrder || "A",
-		responseObj = {
-			hasError : false
-			},
-		validBy = config.VALID_SORTING_BY,
-		validOrder = config.VALID_SORTING_ORDERS;
-		
-		if(validOrder.indexOf(sortOrder.toUpperCase()) === -1 || validBy.indexOf(sortBy.toLowerCase()) === -1){
-			responseObj.hasError = true;
-			responseObj.errorMsg = "Invalid Request";
-			res.status(config.HTTP_CODE.BAD_REQUEST);	
-			res.json(responseObj);
-			return;
-		}
-	
-		switch(sortBy){
-			case validBy[0]:
-				sortByDate(sortOrder);
-				break;
-			case validBy[1]: 
-				sortByPrice(sortOrder);
-				break;
-			default:
-				sortByDate(sortOrder);	
-		}
-		
-		responseObj.data = sampleData;
-		res.status(config.HTTP_CODE.OK);
-		res.json(responseObj);
-}
-
 function getItemById(req, res){
-	var idType =  req.params.type,
-		id =  req.params.id, // Assuming valid id value
-		responseObj = {
-			hasError : false
-			},
-		validIdType = config.VALID_ID_TYPE;
-		
-		if(!idType || !id || validIdType.indexOf(idType.toLowerCase()) === -1){
-			responseObj.hasError = true;
-			responseObj.errorMsg = "Invalid Request";
-			res.status(config.HTTP_CODE.BAD_REQUEST);	
-			res.json(responseObj);
-			return;
-		}
-		
-		switch(idType){
-			case validIdType[0]:
-				responseObj.data = searchByItemId(id);
-				break;
-			case validIdType[1]: 
-				responseObj.data = searchByUserId(id);
-					
-				break;
-			default:
-				responseObj.data = searchByItemId(id);
-		}
-		
-		if(responseObj.data.length === 0){
-			res.status(config.HTTP_CODE.RESOURCE_NOT_FOUND);	
-		}
-		else{
-			res.status(config.HTTP_CODE.OK);
-		}
-		res.json(responseObj);
-}
-
-function getItemByDistance(req, res){
-	var lat = req.params.lat,
-		long = req.params.long,
-		distance = req.params.radius || 50, // fourth parameter for distance unit can be added
+	var id =  req.params.id, // Assuming valid id value
 		responseObj = {
 			hasError : false
 			};
-	
-	if(!lat || !long){
-		responseObj.hasError = true;
-		responseObj.errorMsg = "Invalid Request";
-		res.status(config.HTTP_CODE.BAD_REQUEST);		
-		res.json(responseObj);
-		return;
-	}
-	
-	findNearByItems(lat, long, distance).then(function(nearByItems){
-		responseObj.data = nearByItems;
-		if(responseObj.data.length === 0){
-			res.status(config.HTTP_CODE.RESOURCE_NOT_FOUND);	
-		}
-		else{
-			res.status(config.HTTP_CODE.OK);
-		}
-		res.json(responseObj);
-	}).catch(function(){
-		responseObj.hasError = true;
-		responseObj.errorMsg = "Internal server Error";
-		res.status(config.HTTP_CODE.INTERNAL_SERVER_ERROR);
-		res.json(responseObj);	
-	})
+                        		
+    responseObj.data = searchByItemId(id);
+
+    res.status(config.HTTP_CODE.OK);
+    res.json(responseObj);
 }
 
-getItems.getAllItems = getAllItems;
+function master(req, res){
+    
+    var lattitude = null,
+        longitude = null,
+        sortBy = "date",
+        sortOrder = "A",
+        radius = 50,
+        userId = null,
+        hasInvalidQueryParam = false,
+        responseObj = {
+			hasError : false
+			},
+        dataArray = [];
+     
+     Object.keys(req.query).forEach((param) => {
+        if(!config.VALID_ITEM_QUERY_PARAMS[param]){
+            hasInvalidQueryParam = true;
+        } 
+        else{
+            switch(param.toLowerCase()){
+                case "lattitude":
+                        lattitude = req.query[param] ;
+                    break;
+                 case "longitude":
+                        longitude = req.query[param] ;
+                    break;
+                  case "radius":
+                        radius = req.query[param] ;
+                    break;
+                  case "sortorder":
+                    if(!config.VALID_SORTING_ORDERS[req.query[param].toUpperCase()]){
+                        hasInvalidQueryParam = true;
+                    }
+                    else{
+                        sortOrder = req.query[param].toUpperCase() ;
+                    }
+                    break;
+                  case "sortby":
+                    if(!config.VALID_SORTING_BY[req.query[param]]){
+                        hasInvalidQueryParam = true;
+                    }
+                    else{
+                        sortBy = req.query[param] ;
+                    }
+                    break;
+                 case "userid":
+                        userId = req.query[param] ;
+                    break;
+                 default:
+                    break;
+                    
+            }
+        }
+     });
+
+    if(hasInvalidQueryParam || (lattitude && !longitude) || (!lattitude && longitude)){
+        responseObj.hasError = true;
+        responseObj.errorMsg = "Invalid Request";
+        res.status(config.HTTP_CODE.BAD_REQUEST);		
+        res.json(responseObj);
+        return;
+    }
+    
+    if(userId){
+        dataArray = searchByUserId(userId);
+        sendResponse();
+    }        
+    
+    if(lattitude && !userId){
+        findNearByItems(sampleData, lattitude, longitude, radius).then(function(nearByItems){
+            dataArray = nearByItems;
+            sendResponse();
+        });
+    }
+    
+    if(lattitude && userId){
+        findNearByItems(dataArray, lattitude, longitude, radius).then(function(nearByItems){
+            dataArray = nearByItems;
+            sendResponse();
+        });
+    }
+    
+    if(!lattitude && !userId ){
+            dataArray = sampleData;
+            sendResponse();
+    }
+    
+    function sendResponse(){
+        
+        
+        switch(sortBy){
+                case "date":
+                    sortByDate(dataArray, sortOrder);
+                    break;
+                case "price": 
+                    sortByPrice(dataArray, sortOrder);
+                    break;
+                default:
+                    sortByDate(dataArray, sortOrder);	
+        }
+        
+        responseObj.data = dataArray;
+        res.status(config.HTTP_CODE.OK);
+        res.json(responseObj);
+    }
+}
+
+function invalidRoute(req, res){
+    var responseObj = {
+			    hasError : true,
+                errMsg : "Resource not defined"
+			};
+    
+    res.status(config.HTTP_CODE.RESOURCE_NOT_FOUND);
+    res.json(responseObj);     
+}
+
 getItems.getItemById = getItemById;
-getItems.getItemByDistance = getItemByDistance;
+getItems.master = master;
+getItems.invalidRoute = invalidRoute;
 
 module.exports = getItems;

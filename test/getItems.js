@@ -5,96 +5,132 @@ var assert = require('chai').assert,
 	
 describe('getItems', function(){
 	
-	describe('/allItems/:sortBy/:sortOrder', function(){
-		it('should return status 200 and all the items', function(done){
+	describe('/items/:id', function(){
+		it('should return status 200 and the item with passed id', function(done){
 			supertest(app)
-			.get('/allItems/price/A')
+			.get('/items/5421c0eb3f37951d5c000019')
 			.expect(200)
 			.end(function(err, res){
 				assert.equal(res.status, 200, "HTTP response OK");
-				assert.equal(res.body.data.length, 100, "Should return all 100 items");
+				assert.isObject(res.body.data, "Should return an object");
 				done();
 			})
 		});		
-			
-		it('should return status 400 - Bad request for ordering type value other than "A" and "D"', function(done){
-			supertest(app)
-			.get('/allItems/price/B')
-			.expect(400)
-			.end(function(err, res){
-				assert.equal(res.status, 400, "Bad Request");
-				done();
-			})
-		});
-		
-		it('should return status 400 - Bad request for ordering by value other than "date" and "price"', function(done){
-			supertest(app)
-			.get('/allItems/dummy/B')
-			.expect(400)
-			.end(function(err, res){
-				assert.equal(res.status, 400, "Bad Request");
-				done();
-			})
-		});
+
 	});
 	
-	describe('/items/:id/:type', function(){
-		it('should return status 200 and items for valid id and type values', function(done){
+	describe('Undefined Routes - 404 cases', function(){
+         it('should return status 200 and all the items when no query parameter is passed', function(done){
 			supertest(app)
-			.get('/items/53f6c9c96d1944af0b00000b/user')
+			.get('/items')
 			.expect(200)
 			.end(function(err, res){
 				assert.equal(res.status, 200, "HTTP response OK");
-				assert.notEqual(res.body.data.length, 0, "Should return items published by user");
+                assert.equal(res.body.data.length, 100, "Should return all the data")
 				done();
 			})
-		});
-		
-		it('should return status 404 - Resource not found  for an id whose record is not present', function(done){
+		});		
+        
+        it('should return status 200 and all the items belonging to particular userId when only userId is passed', function(done){
 			supertest(app)
-			.get('/items/53f6c9c96d1944af0b00000a/user')
-			.expect(404)
-			.end(function(err, res){
-				assert.equal(res.status, 404, "Resource Not Found");
-				done();
-			})
-		});
-		
-		it('should return status 400 - Bad request for id type value other than "item" and "user"', function(done){
-			supertest(app)
-			.get('/items/53f6c9c96d1944af0b00000a/date')
-			.expect(400)
-			.end(function(err, res){
-				assert.equal(res.status, 400, "Bad Request");
-				done();
-			})
-		});
-		
-	});
-	
-	describe('/itemByDistance/:lat/:long/:radius', function(){
-		it('should return status 200 and items for valid lattitude, logitude and radius values', function(done){
-			supertest(app)
-			.get('/itemByDistance/36.1632776369483580/-115.1409809579232757/20')
+			.get('/items?userId=53fd1d5f646d8f233e000015')
 			.expect(200)
 			.end(function(err, res){
-				assert.equal(res.status, 200, "HTTP response OK");
-				assert.notEqual(res.body.data.length, 0, "Should return items published by user");
+        		assert.equal(res.status, 200, "HTTP response OK");
+                assert.notStrictEqual(res.body.data.length, 100, "Should not return all the data");
+                assert.notStrictEqual(res.body.data.length, 0, "Should return one or more records");
 				done();
 			})
 		});
-		
-		it('should return status 404 - Resource not found  for those values of lattitude, longitude and radius for whom there is no record', function(done){
+        
+        it('should return status 200 and all the items belonging to passed userId and within 50 miles range of passed  coordinates', function(done){
 			supertest(app)
-			.get('/itemByDistance/0/0/20')
-			.expect(404)
+			.get('/items?userId=53fd1d5f646d8f233e000015&lattitude=36.1650672625387415&longitude=-115.1394261163364092')
+			.expect(200)
 			.end(function(err, res){
-				assert.equal(res.status, 404, "Resource Not Found");
+        		assert.equal(res.status, 200, "HTTP response OK");
+                assert.notStrictEqual(res.body.data.length, 100, "Should not return all the data");
+                assert.notStrictEqual(res.body.data.length, 0, "Should return one or more records");
 				done();
 			})
-		});
-		
+		});	
+        
+        it('should return status 200 and data length should be 0 as no item is present in 50 radius of given coordinates', function(done){
+			supertest(app)
+			.get('/items?userId=53fd1d5f646d8f233e000015&lattitude=q&longitude=1')
+			.expect(200)
+			.end(function(err, res){
+                assert.equal(res.status, 200, "HTTP response OK");
+                assert.notStrictEqual(res.body.data.length, 0, "Should return one or more records");
+				done();
+			})
+		});		
+        
+         it('should return status 200 and data array length should be between 0 and 100 for valid lattitude and longitude value', function(done){
+			supertest(app)
+			.get('/items?lattitude=36.1650672625387415&longitude=-115.1394261163364092')
+			.expect(200)
+			.end(function(err, res){
+                assert.equal(res.status, 200, "HTTP response OK");
+                assert.notStrictEqual(res.body.data.length, 0, "Should return more than 0 records");
+                assert.notStrictEqual(res.body.data.length, 4, "Should not be equal to 4");
+                assert.notStrictEqual(res.body.data.length, 100, "Should be less than 100");
+				done();
+			})
+		});	
+        
+        it('should return status 400 - invalid parameter if only one of longitude and lattitude values is passed', function(done){
+			supertest(app)
+			.get('/items?lattitude=36.1650672625387415')
+			.expect(400)
+			.end(function(err, res){
+                assert.equal(res.status, 400, "HTTP Error - Invalid parameter");
+				done();
+			})
+		});	
+        
+        it('should return status 400 - invalid parameter if invalid sortBy value is passed', function(done){
+			supertest(app)
+			.get('/items?sortOrder=Asc')
+			.expect(400)
+			.end(function(err, res){
+                assert.equal(res.status, 400, "HTTP Error - Invalid parameter");
+				done();
+			})
+		});	
+        
+        it('should return status 400 - invalid parameter if invalid query parameter is passed', function(done){
+			supertest(app)
+			.get('/items?sortingOrder=A')
+			.expect(400)
+			.end(function(err, res){
+                assert.equal(res.status, 400, "HTTP Error - Invalid parameter");
+				done();
+			})
+		});		
+        
 	});
 	
-	
+    	describe('post /items/:id', function(){
+		it('should return status 404 as no post method is defined for this route', function(done){
+			supertest(app)
+			.post('/items/5421c0eb3f37951d5c000019')
+			.expect(404)
+			.end(function(err, res){
+				assert.equal(res.status, 404, "HTTP resource not found error");
+				done();
+			})
+		});	
+        
+		it('should return status 404 as no such route is defined', function(done){
+			supertest(app)
+			.get('/items/5421c0eb3f37951d5c000019/A')
+			.expect(404)
+			.end(function(err, res){
+				assert.equal(res.status, 404, "HTTP resource not found error");
+				done();
+			})
+		});		
+
+	});
 });

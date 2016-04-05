@@ -18,43 +18,41 @@ Here are details of APIs.
 
 APIs
 ========================================================================================
-1) /allItems/:sortBy/:sortOrder
+1) /items/:id
 
-	This API returns all the items in the list in asked sorting order.
-	Values:
-			sortBy : "date", // valid values : date, price 
-			sortOrder : "D" // valid values : A, D  
+	This API returns item for given id.  
 	
 	Request Type : GET
 	
 	Using curl:		
-	curl http://localhost:3000/allItems/price/A
+	curl http://localhost:3000/items/5421c0eb3f37951d5c000019/
 	
 
-2) /items/:id/:type
+2) /items
 
-	This API returns items as per specified id.
-	Values:
-			type : "user", //valid values : item, user
-			id : "53f6c9c96d1944af0b00000b" // valid respective id value 
+	This API returns items and response can be filtered using different query parmeters 
 
 	Request Type : GET
+    
+    Valid query parameters: lattitude, longitude, radius, userId, sortBy - price, date, sortOrder - A (for Ascending), D (for Descending)
 	
 	Using curl:	
-	curl http://localhost:3000/items/53f6c9c96d1944af0b00000b/user
+	1) curl http://localhost:3000/items/ - 
+        
+    Returns all the items by default dorted by created date in ascending order
+    
+    2) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015 -
+    
+    Returns items having passed userId
+    
+    3) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015&lattitude=36.1650672625387415&longitude=-115.1394261163364092 -
+    
+    Returns all the items belonging to passed userId and within 50 miles range of passed  coordinates
+        
+    4) curl http://localhost:3000/items?userId=53fd1d5f646d8f233e000015&lattitude=36.1650672625387415&longitude=-115.1394261163364092&sortBy=price&sortOrder=D -
+    
+    Returns all the items belonging to passed userId and within 50 miles range of passed  coordinates and returned data is sorted by price in descending order
 
-3) /itemByDistance/:lat/:long/:radius
-	
-	This API returns all the items located within certain range of given lattitude and longitude.
-	Values:
-			Lattitude : 36.1632776369483580, // Valid Lattitude
-			Longitude : -115.1409809579232757, // Valid Longitude
-			Radius : 20 // Distance in Miles
-			
-	Request Type : GET
-	
-	Using curl:
-	curl http://localhost:3000/itemByDistance/36.1632776369483580/-115.1409809579232757/20
 	
 	
 Steps to get Started 
