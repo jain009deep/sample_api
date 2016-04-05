@@ -163,27 +163,29 @@ function master(req, res){
     
     if(userId){
         dataArray = searchByUserId(userId);
-        sendResponse();
-    }        
-    
-    if(lattitude && !userId){
-        findNearByItems(sampleData, lattitude, longitude, radius).then(function(nearByItems){
-            dataArray = nearByItems;
+        if(!lattitude){
+            sendResponse();            
+        }
+        else{
+            findNearByItems(dataArray, lattitude, longitude, radius).then(function(nearByItems){
+                dataArray = nearByItems;
+                sendResponse();
+            });
+        }
+    }    
+    else{
+        if(lattitude){
+            findNearByItems(sampleData, lattitude, longitude, radius).then(function(nearByItems){
+                dataArray = nearByItems;
+                sendResponse();
+            });
+        }
+        else{
+             dataArray = sampleData;
             sendResponse();
-        });
-    }
+        }
+    }    
     
-    if(lattitude && userId){
-        findNearByItems(dataArray, lattitude, longitude, radius).then(function(nearByItems){
-            dataArray = nearByItems;
-            sendResponse();
-        });
-    }
-    
-    if(!lattitude && !userId ){
-            dataArray = sampleData;
-            sendResponse();
-    }
     
     function sendResponse(){
         

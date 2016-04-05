@@ -19,7 +19,7 @@ describe('getItems', function(){
 
 	});
 	
-	describe('Undefined Routes - 404 cases', function(){
+	describe('/items - different query parameter use cases', function(){
          it('should return status 200 and all the items when no query parameter is passed', function(done){
 			supertest(app)
 			.get('/items')
@@ -57,11 +57,11 @@ describe('getItems', function(){
         
         it('should return status 200 and data length should be 0 as no item is present in 50 radius of given coordinates', function(done){
 			supertest(app)
-			.get('/items?userId=53fd1d5f646d8f233e000015&lattitude=q&longitude=1')
+			.get('/items?userId=53fd1d5f646d8f233e000015&lattitude=2&longitude=1')
 			.expect(200)
 			.end(function(err, res){
                 assert.equal(res.status, 200, "HTTP response OK");
-                assert.notStrictEqual(res.body.data.length, 0, "Should return one or more records");
+                assert.equal(res.body.data.length, 0, "Should return one or more records");
 				done();
 			})
 		});		
@@ -111,7 +111,7 @@ describe('getItems', function(){
         
 	});
 	
-    	describe('post /items/:id', function(){
+    describe('Undefined Routes - 404 cases', function(){
 		it('should return status 404 as no post method is defined for this route', function(done){
 			supertest(app)
 			.post('/items/5421c0eb3f37951d5c000019')
